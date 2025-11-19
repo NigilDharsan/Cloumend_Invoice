@@ -23,7 +23,7 @@ class Service {
 }
 
 class QuotationScreen extends StatefulWidget {
-  const QuotationScreen({Key? key}) : super(key: key);
+  const QuotationScreen({super.key});
 
   @override
   State<QuotationScreen> createState() => _QuotationScreenState();
@@ -38,6 +38,11 @@ class _QuotationScreenState extends State<QuotationScreen> {
   DateTime quotationDate = DateTime.now();
   DateTime? validUntil;
   double discount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   List<Service> selectedServices = [];
 
@@ -79,17 +84,21 @@ class _QuotationScreenState extends State<QuotationScreen> {
   };
 
   double get subtotal => selectedServices.fold(0, (sum, s) => sum + s.total);
+
   double get discountAmount => subtotal * (discount / 100);
+
   double get total => subtotal - discountAmount;
 
   void addService(String category, Map<String, dynamic> serviceData) {
     setState(() {
-      selectedServices.add(Service(
-        name: serviceData['name'],
-        price: serviceData['price'],
-        unit: serviceData['unit'],
-        category: category,
-      ));
+      selectedServices.add(
+        Service(
+          name: serviceData['name'],
+          price: serviceData['price'],
+          unit: serviceData['unit'],
+          category: category,
+        ),
+      );
     });
   }
 
@@ -102,7 +111,6 @@ class _QuotationScreenState extends State<QuotationScreen> {
   Future<void> generatePDF() async {
     final pdf = pw.Document();
     final dateFormat = DateFormat('dd MMM yyyy');
-
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
@@ -137,9 +145,7 @@ class _QuotationScreenState extends State<QuotationScreen> {
               ],
             ),
           ),
-
           pw.SizedBox(height: 30),
-
           // Client and Date Info
           pw.Row(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -179,19 +185,13 @@ class _QuotationScreenState extends State<QuotationScreen> {
               ),
             ],
           ),
-
           pw.SizedBox(height: 30),
-
           // Services Table
           pw.Text(
             'SERVICES',
-            style: pw.TextStyle(
-              fontSize: 16,
-              fontWeight: pw.FontWeight.bold,
-            ),
+            style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
           ),
           pw.SizedBox(height: 10),
-
           pw.Table(
             border: pw.TableBorder.all(color: PdfColors.grey300),
             children: [
@@ -201,66 +201,95 @@ class _QuotationScreenState extends State<QuotationScreen> {
                 children: [
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text('Service',
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    child: pw.Text(
+                      'Service',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
                   ),
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text('Category',
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    child: pw.Text(
+                      'Category',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
                   ),
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text('Qty',
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    child: pw.Text(
+                      'Qty',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
                   ),
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text('Price',
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    child: pw.Text(
+                      'Price',
+                      style: pw.TextStyle(
+                        font: pw.Font.times(),
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
                   ),
                   pw.Padding(
                     padding: const pw.EdgeInsets.all(8),
-                    child: pw.Text('Total',
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    child: pw.Text(
+                      'Total',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
               // Service Rows
-              ...selectedServices.map((service) => pw.TableRow(
-                    children: [
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(8),
-                        child: pw.Text(service.name,
-                            style: const pw.TextStyle(fontSize: 10)),
+              ...selectedServices.map(
+                (service) => pw.TableRow(
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        service.name,
+                        style: const pw.TextStyle(fontSize: 10),
                       ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(8),
-                        child: pw.Text(service.category,
-                            style: const pw.TextStyle(fontSize: 10)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        service.category,
+                        style: const pw.TextStyle(fontSize: 10),
                       ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(8),
-                        child: pw.Text('${service.quantity}',
-                            style: const pw.TextStyle(fontSize: 10)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        '${service.quantity}',
+                        style: const pw.TextStyle(fontSize: 10),
                       ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(8),
-                        child: pw.Text('₹${service.price.toStringAsFixed(2)}',
-                            style: const pw.TextStyle(fontSize: 10)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        '₹${service.price.toStringAsFixed(2)}',
+                        style: pw.TextStyle(
+                          font: pw.Font.times(),
+                          fontSize: 10,
+                        ),
                       ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(8),
-                        child: pw.Text('₹${service.total.toStringAsFixed(2)}',
-                            style: const pw.TextStyle(fontSize: 10)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        '₹${service.total.toStringAsFixed(2)}',
+                        style: pw.TextStyle(
+                          font: pw.Font.times(),
+                          fontSize: 10,
+                        ),
                       ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-
           pw.SizedBox(height: 20),
-
           // Summary
           pw.Container(
             alignment: pw.Alignment.centerRight,
@@ -278,7 +307,10 @@ class _QuotationScreenState extends State<QuotationScreen> {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Text('Subtotal:'),
-                      pw.Text('₹${subtotal.toStringAsFixed(2)}'),
+                      pw.Text(
+                        '₹${subtotal.toStringAsFixed(2)}',
+                        style: pw.TextStyle(font: pw.Font.times()),
+                      ),
                     ],
                   ),
                   if (discount > 0) ...[
@@ -287,8 +319,13 @@ class _QuotationScreenState extends State<QuotationScreen> {
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
                         pw.Text('Discount ($discount%):'),
-                        pw.Text('- ₹${discountAmount.toStringAsFixed(2)}',
-                            style: const pw.TextStyle(color: PdfColors.green)),
+                        pw.Text(
+                          '- ₹${discountAmount.toStringAsFixed(2)}',
+                          style: pw.TextStyle(
+                            font: pw.Font.times(),
+                            color: PdfColors.green,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -306,6 +343,7 @@ class _QuotationScreenState extends State<QuotationScreen> {
                       pw.Text(
                         '₹${total.toStringAsFixed(2)}',
                         style: pw.TextStyle(
+                          font: pw.Font.times(),
                           fontSize: 16,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.blue700,
@@ -322,18 +360,15 @@ class _QuotationScreenState extends State<QuotationScreen> {
             pw.SizedBox(height: 30),
             pw.Text(
               'NOTES & TERMS',
-              style: pw.TextStyle(
-                fontSize: 14,
-                fontWeight: pw.FontWeight.bold,
-              ),
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
             ),
             pw.SizedBox(height: 10),
-            pw.Text(_notesController.text,
-                style: const pw.TextStyle(fontSize: 11)),
+            pw.Text(
+              _notesController.text,
+              style: const pw.TextStyle(fontSize: 11),
+            ),
           ],
-
           pw.SizedBox(height: 30),
-
           // Footer
           pw.Divider(),
           pw.Text(
@@ -349,22 +384,31 @@ class _QuotationScreenState extends State<QuotationScreen> {
       ),
     );
 
-    await Printing.layoutPdf(
-      onLayout: (format) async => pdf.save(),
-    );
+    await Printing.layoutPdf(onLayout: (format) async => pdf.save());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Digital Marketing Quotation'),
+        title: const Text(
+          'Digital Marketing Quotation',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         elevation: 0,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blue, Colors.indigo],
-            ),
+            gradient: LinearGradient(colors: [Colors.blue, Colors.indigo]),
           ),
         ),
       ),
@@ -383,33 +427,41 @@ class _QuotationScreenState extends State<QuotationScreen> {
                   children: [
                     const Text(
                       'Client Information',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _clientNameController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Client Name',
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         prefixIcon: Icon(Icons.person),
                       ),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _clientEmailController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Email',
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         prefixIcon: Icon(Icons.email),
                       ),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _clientPhoneController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Phone',
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         prefixIcon: Icon(Icons.phone),
                       ),
                     ),
@@ -430,15 +482,18 @@ class _QuotationScreenState extends State<QuotationScreen> {
                   children: [
                     const Text(
                       'Quotation Details',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     ListTile(
                       leading: const Icon(Icons.calendar_today),
                       title: const Text('Quotation Date'),
-                      subtitle:
-                          Text(DateFormat('dd MMM yyyy').format(quotationDate)),
+                      subtitle: Text(
+                        DateFormat('dd MMM yyyy').format(quotationDate),
+                      ),
                       onTap: () async {
                         final date = await showDatePicker(
                           context: context,
@@ -452,13 +507,16 @@ class _QuotationScreenState extends State<QuotationScreen> {
                     ListTile(
                       leading: const Icon(Icons.event),
                       title: const Text('Valid Until'),
-                      subtitle: Text(validUntil != null
-                          ? DateFormat('dd MMM yyyy').format(validUntil!)
-                          : 'Not set'),
+                      subtitle: Text(
+                        validUntil != null
+                            ? DateFormat('dd MMM yyyy').format(validUntil!)
+                            : 'Not set',
+                      ),
                       onTap: () async {
                         final date = await showDatePicker(
                           context: context,
-                          initialDate: validUntil ??
+                          initialDate:
+                              validUntil ??
                               DateTime.now().add(const Duration(days: 30)),
                           firstDate: DateTime.now(),
                           lastDate: DateTime(2030),
@@ -483,8 +541,10 @@ class _QuotationScreenState extends State<QuotationScreen> {
                   children: [
                     const Text(
                       'Select Services',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     ...serviceCategories.entries.map((category) {
@@ -495,12 +555,25 @@ class _QuotationScreenState extends State<QuotationScreen> {
                         ),
                         children: category.value.map((service) {
                           return ListTile(
-                            title: Text(service['name']),
+                            title: Text(
+                              service['name'],
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             subtitle: Text(
-                                '₹${service['price']} - ${service['unit']}'),
+                              '₹${service['price']} - ${service['unit']}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
                             trailing: IconButton(
-                              icon: const Icon(Icons.add_circle,
-                                  color: Colors.blue),
+                              icon: const Icon(
+                                Icons.add_circle,
+                                color: Colors.blue,
+                              ),
                               onPressed: () =>
                                   addService(category.key, service),
                             ),
@@ -512,9 +585,7 @@ class _QuotationScreenState extends State<QuotationScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
             // Selected Services
             if (selectedServices.isNotEmpty) ...[
               Card(
@@ -527,7 +598,9 @@ class _QuotationScreenState extends State<QuotationScreen> {
                       const Text(
                         'Selected Services',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       ...selectedServices.asMap().entries.map((entry) {
@@ -538,7 +611,12 @@ class _QuotationScreenState extends State<QuotationScreen> {
                           child: ListTile(
                             title: Text(service.name),
                             subtitle: Text(
-                                '${service.category} - ₹${service.price} x ${service.quantity}'),
+                              '${service.category} - ₹${service.price} x ${service.quantity}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -557,8 +635,10 @@ class _QuotationScreenState extends State<QuotationScreen> {
                                       setState(() => service.quantity++),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red),
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
                                   onPressed: () => removeService(index),
                                 ),
                               ],
@@ -584,11 +664,17 @@ class _QuotationScreenState extends State<QuotationScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Subtotal:',
-                              style: TextStyle(fontSize: 16)),
-                          Text('₹${subtotal.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Subtotal:',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            '₹${subtotal.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -603,11 +689,14 @@ class _QuotationScreenState extends State<QuotationScreen> {
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 8),
+                                  horizontal: 8,
+                                  vertical: 8,
+                                ),
                               ),
                               onChanged: (value) {
-                                setState(() =>
-                                    discount = double.tryParse(value) ?? 0);
+                                setState(
+                                  () => discount = double.tryParse(value) ?? 0,
+                                );
                               },
                             ),
                           ),
@@ -618,12 +707,17 @@ class _QuotationScreenState extends State<QuotationScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Discount Amount:',
-                                style: TextStyle(color: Colors.green)),
-                            Text('- ₹${discountAmount.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Discount Amount:',
+                              style: TextStyle(color: Colors.green),
+                            ),
+                            Text(
+                              '- ₹${discountAmount.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -631,15 +725,21 @@ class _QuotationScreenState extends State<QuotationScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('TOTAL:',
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold)),
-                          Text('₹${total.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              )),
+                          const Text(
+                            'TOTAL:',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '₹${total.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -660,8 +760,10 @@ class _QuotationScreenState extends State<QuotationScreen> {
                   children: [
                     const Text(
                       'Notes & Terms',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
@@ -677,9 +779,7 @@ class _QuotationScreenState extends State<QuotationScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 24),
-
             // Generate PDF Button
             SizedBox(
               width: double.infinity,

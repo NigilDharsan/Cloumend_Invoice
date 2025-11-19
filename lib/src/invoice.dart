@@ -1,42 +1,46 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 class PdfReceiptPage extends StatefulWidget {
-  const PdfReceiptPage({super.key});
+  final String industryName, address, phone, gstNumber, state, amount;
+
+  const PdfReceiptPage({
+    super.key,
+    required this.industryName,
+    required this.address,
+    required this.phone,
+    required this.gstNumber,
+    required this.state,
+    required this.amount,
+  });
 
   @override
   State<PdfReceiptPage> createState() => _PdfReceiptPageState();
 }
 
 class _PdfReceiptPageState extends State<PdfReceiptPage> {
-  late pw.Font latoBold; // store loaded font
 
   @override
   void initState() {
     super.initState();
-    // _loadFont(); // load once
   }
 
-  Future<void> _loadFont() async {
-    latoBold = await fontFromAssetBundle('assets/fonts/lato.bold.ttf');
-  }
 
-  Future<Uint8List> _generatePdf() async {
+  Future<Uint8List> _generatePdf(PdfPageFormat format) async {
     final pdf = pw.Document();
-    final logoImage = await imageFromAssetBundle("assets/bali.jpg");
-
+    final logoImage = await imageFromAssetBundle("assets/download.png");
     final smallText = pw.TextStyle(fontSize: 9);
     final boldText = pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold);
     final heading = pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold);
-
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.a4,
+        // pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(30),
+        pageFormat: format,
         build: (context) {
           return pw.Stack(
             children: [
@@ -67,7 +71,6 @@ class _PdfReceiptPageState extends State<PdfReceiptPage> {
                     ),
                   ),
                   pw.SizedBox(height: 8),
-
                   pw.Container(
                     decoration: pw.BoxDecoration(
                       border: pw.Border.all(color: PdfColors.black, width: 1),
@@ -85,7 +88,6 @@ class _PdfReceiptPageState extends State<PdfReceiptPage> {
                               child: pw.Image(logoImage),
                             ),
                             pw.SizedBox(width: 8),
-
                             pw.Expanded(
                               child: pw.Column(
                                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -141,24 +143,24 @@ class _PdfReceiptPageState extends State<PdfReceiptPage> {
                                       ),
                                       pw.SizedBox(height: 4),
                                       pw.Text(
-                                        "SUPER MATIN INDUSTRIES",
+                                        widget.industryName,
                                         style: boldText,
                                       ),
                                       pw.Text(
-                                        "S.F. NO.808/1A 1, PALGHAT MAIN ROAD,\nMADUKKARAI\nCoimbatore, Tamil Nadu-641105\nIndia",
+                                        "Address:${widget.address}",
                                         style: smallText,
                                       ),
                                       pw.SizedBox(height: 4),
                                       pw.Text(
-                                        "Contact No: 9205370485",
+                                        "Contact No: ${widget.phone}",
                                         style: smallText,
                                       ),
                                       pw.Text(
-                                        "GSTIN: 33NAXPS5699F1ZF",
+                                        "GSTIN: ${widget.gstNumber}",
                                         style: smallText,
                                       ),
                                       pw.Text(
-                                        "State: 33-Tamil Nadu",
+                                        "State: ${widget.state}",
                                         style: smallText,
                                       ),
                                     ],
@@ -209,9 +211,13 @@ class _PdfReceiptPageState extends State<PdfReceiptPage> {
                                 ),
                               ),
                               pw.Text(
-                                "₹ 3,000.00",
-                                style: pw.TextStyle(fontSize: 15),
-                              ),
+                                "₹${widget.amount}",
+                                style: pw.TextStyle(
+                                  font: pw.Font.times(),
+                                  fontSize: 20,
+                                ),
+                              )
+
                             ],
                           ),
                         ),
@@ -241,9 +247,7 @@ class _PdfReceiptPageState extends State<PdfReceiptPage> {
                             ],
                           ),
                         ),
-
                         pw.SizedBox(height: 10),
-
                         pw.Align(
                           alignment: pw.Alignment.centerRight,
                           child: pw.Container(
@@ -270,9 +274,7 @@ class _PdfReceiptPageState extends State<PdfReceiptPage> {
                                     ),
                                   ),
                                 ),
-
                                 pw.SizedBox(height: 8),
-
                                 pw.Text(
                                   "Authorized Signatory",
                                   style: smallText,
@@ -298,14 +300,35 @@ class _PdfReceiptPageState extends State<PdfReceiptPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Payment Receipt PDF")),
+      appBar: AppBar(
+        titleSpacing: -15,
+        title: const Text(
+          'Payment Receipt PDF',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(colors: [Colors.blue, Colors.indigo]),
+          ),
+        ),
+      ),
       body: PdfPreview(
-        build: (format) => _generatePdf(),
-        canChangeOrientation: false,
-        canChangePageFormat: false,
+        build: (format) => _generatePdf(format),
         allowPrinting: true,
         allowSharing: true,
-        pdfFileName: "Payment_Receipt.pdf",
+        canChangeOrientation: false,
+        pdfFileName: "Receipt_${widget.industryName}.pdf",
       ),
     );
   }
